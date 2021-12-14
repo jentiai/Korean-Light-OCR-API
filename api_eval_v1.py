@@ -62,7 +62,7 @@ class ReadPredGT:
                     m = p8.search(line)
                     det = [int(m.group(i)) for i in range(1, 9)]
                     rec = m.group(9)
-                    temp = [det, rec]
+                    temp = [det[0], det[1], det[2], det[3], det[4], det[5], det[6], det[7], rec]
                     gt_list.append(temp)
         return gt_list
 
@@ -102,3 +102,4 @@ if __name__ == '__main__':
         gt_list = Reader.read_txt_gt(k_img_name)
 
         print(pred_list)
+        print(gt_list)
