@@ -42,11 +42,11 @@ class ReadPredGT:
         self.pred_list = []
         
     def read_pred(self, v_pred):
-        if 'naver' in self.api_res_json:
+        if 'naver' in os.path.basename(self.api_res_json):
             self.read_naver_pred(v_pred)
-        if 'kakao' in self.api_res_json:
+        elif 'kakao' in os.path.basename(self.api_res_json):
             self.read_kakao_pred(v_pred)
-        if 'jenti' in self.api_res_json:
+        elif 'jenti' in os.path.basename(self.api_res_json):
             self.read_jenti_pred(v_pred)
         return self.pred_list
 
@@ -100,3 +100,5 @@ if __name__ == '__main__':
             continue
         pred_list = Reader.read_pred(v_pred)
         gt_list = Reader.read_txt_gt(k_img_name)
+
+        print(pred_list)
