@@ -345,6 +345,8 @@ def copyStateDict(state_dict):
         new_state_dict[name] = v
     return new_state_dict
 
+
+
 def gt_list_num_except_ignore(gt_list, ignore):
     gt_list_num = 0
     for gt in gt_list:
@@ -353,9 +355,6 @@ def gt_list_num_except_ignore(gt_list, ignore):
             gt_list_num += 1
 
     return gt_list_num
-
-
-
 
 def evaluation(pred_list, gt_list, iou_threshold):
     ignore = ['*', '###']
