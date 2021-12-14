@@ -106,6 +106,7 @@ if __name__ == '__main__':
         gt_list = Reader.read_txt_gt(k_img_name)
         iou_threshold = 0.1
         correct_num, gt_num = evaluation(pred_list, gt_list, iou_threshold)
+
         if gt_num:
             total_num += 1
             macro += correct_num / gt_num
