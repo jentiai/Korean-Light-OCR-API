@@ -53,9 +53,36 @@
   $ curl --request POST http://27.255.77.102:5000/evaluation --form 'file=@sample_image.jpg'
   ```
 
-- 
 
-## 3. 참고 자료
+
+## 3. Model Result
+
+> API의 OCR 결과를 이용하여 이미지에 box와 label을 그려주는 코드
+
+```bash
+$ python model_result.py --img_dir [이미지가 담겨있는 directory] --output_dir [OCR 결과를 이용하여 visualize한 이미지들의 output directory]
+
+ex)
+$ python model_result.py --img_dir ./sample/ --output_dir ./output/
+```
+
+
+
+<center>
+    <p float="left">
+        <img src ="Figures/model_result1.jpg" width = "30%" height = "30%">
+        <img src ="Figures/model_result2.jpg" width = "30%" height = "30%">
+        <img src ="Figures/model_result3.jpg" width = "30%" height = "30%">
+    </p>
+<\center>
+
+
+
+
+
+
+
+## 4. 참고 자료
 
 [1] PP-OCR
 
