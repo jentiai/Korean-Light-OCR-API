@@ -82,4 +82,3 @@ if __name__ == '__main__':
         gt_list = Reader.read_txt_gt(k_img_name)
             
         print(gt_list)
-        if k_img_name == 'B787C58869B9BE4A1A9BEF8CE75106BD':break
