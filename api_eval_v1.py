@@ -1,5 +1,4 @@
 import os
-import re
 import json
 import argparse
 from tools import evaluation
@@ -52,16 +51,17 @@ class ReadPredGT:
 
     def read_txt_gt(self, k_img_name):
         gt_list = []
-        p8 = re.compile(r"([\d]+)\, ([\d]+)\, ([\d]+)\, ([\d]+)\, ([\d]+)\, ([\d]+)\, ([\d]+)\, ([\d]+)\, (.*)")
         with open(os.path.join(self.txt_gt_dir, k_img_name + '.txt'), 'r') as t:
             while True:
                 line = t.readline().strip('\n').strip(' ')
                 if not line:
                     break
                 else:
-                    m = p8.search(line)
-                    det = [int(m.group(i)) for i in range(1, 9)]
-                    rec = m.group(9)
+                    line_set = line.split(',')
+                    det = list(map(int, line_set[:8]))
+                    rec = line_set[8].strip(' ')
+                    if line.endswith(','):
+                        rec += ','
                     temp = [det[0], det[1], det[2], det[3], det[4], det[5], det[6], det[7], rec]
                     gt_list.append(temp)
         return gt_list
@@ -99,9 +99,8 @@ if __name__ == '__main__':
     macro = 0
     micro_numerator = 0
     micro_denominator = 0
+
     for i, (k_img_name, v_pred) in enumerate(pred_json.items()):
-        if k_img_name in exception_list: # exception_list가 나오면 continue
-            continue
         pred_list = Reader.read_pred(v_pred)
         gt_list = Reader.read_txt_gt(k_img_name)
         iou_threshold = 0.1
@@ -114,4 +113,4 @@ if __name__ == '__main__':
             micro_denominator += gt_num
 
     print(f'marcro: {macro / total_num}')
-    print(f'mircro: {micro_numerator/ micro_denominator}')
+    print(f'mircro: {micro_numerator/ micro_denominator}')         
