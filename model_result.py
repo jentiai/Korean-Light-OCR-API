@@ -10,18 +10,14 @@ def main(args):
     output_dir = args.output_dir
     url = args.url
 
-
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir, exist_ok = True)
 
-    
     for img_name in list(filter(lambda x: x.find('.jpg') != -1 or x.find('.png') != -1, os.listdir(img_dir))):
         img_path = os.path.join(img_dir, img_name)
         files = {'file': open(img_path, 'rb').read()}
         r = requests.post(url, files = files)
         visualization(img_path,  r.json(), output_dir)
-
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
