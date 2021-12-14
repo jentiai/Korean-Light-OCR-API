@@ -344,3 +344,40 @@ def copyStateDict(state_dict):
         name = ".".join(k.split(".")[start_idx:])
         new_state_dict[name] = v
     return new_state_dict
+
+def gt_list_num_except_ignore(gt_list, ignore):
+    gt_list_num = 0
+    for gt in gt_list:
+        _, _, _, _, _, _, _, _, gt_label = gt
+        if gt_label not in ignore:
+            gt_list_num += 1
+
+    return gt_list_num
+
+
+
+
+def evaluation(pred_list, gt_list, iou_threshold):
+    ignore = ['*', '###']
+    gt_num = gt_list_num_except_ignore(gt_list, ignore)
+    if gt_num == 0:
+        return 0, 0
+    correct_num = 0
+    for pred in pred_list:
+        x1, y1, x2, y2, x3, y3, x4, y4, pred_label = pred 
+        pred_polygon = polygon_from_points([x1, y1, x2, y2, x3, y3, x4, y4])
+        
+        keep_info = []
+        for gt in gt_list:
+            x1, y1, x2, y2, x3, y3, x4, y4, gt_label = gt
+            if gt_label not in ignore:
+                gt_polygon = polygon_from_points([x1, y1, x2, y2, x3, y3, x4, y4])
+                intersection_over_union = get_intersection_over_union(pred_polygon, gt_polygon)
+                if intersection_over_union > iou_threshold:
+                    keep_info.append([gt_label, intersection_over_union])
+                
+        if keep_info:
+            keep_info = sorted(keep_info, key = lambda x : -x[1])[0]
+            if pred_label == gt_label:
+                correct_num += 1
+    return correct_num, gt_num

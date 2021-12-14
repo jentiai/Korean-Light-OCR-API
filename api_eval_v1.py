@@ -2,7 +2,7 @@ import os
 import re
 import json
 import argparse
-
+from tools import evaluation
 class ReadPredGT:
     def __init__(self, args):
         self.api_res_json = args.api_res_json
@@ -95,11 +95,22 @@ if __name__ == '__main__':
                         '877FE9F5CD2364A1A53AF130E4DC1A77', '27E18425BA68C427792CB892CCDDDE4E', '8EC026F0BB656DC46C0C54314197E2CD', 'E1D226CD4890911CFC5FDC0FCDD35927',
                         'AAE61BDA0C4D7B57E5D763BDBAC71B77']
 
+    total_num = 0 
+    macro = 0
+    micro_numerator = 0
+    micro_denominator = 0
     for i, (k_img_name, v_pred) in enumerate(pred_json.items()):
         if k_img_name in exception_list: # exception_list가 나오면 continue
             continue
         pred_list = Reader.read_pred(v_pred)
         gt_list = Reader.read_txt_gt(k_img_name)
+        iou_threshold = 0.1
+        correct_num, gt_num = evaluation(pred_list, gt_list, iou_threshold)
+        if gt_num:
+            total_num += 1
+            macro += correct_num / gt_num
+            micro_numerator += correct_num
+            micro_denominator += gt_num
 
-        print(pred_list)
-        print(gt_list)
+    print(f'marcro: {macro / total_num}')
+    print(f'mircro: {micro_numerator/ micro_denominator}')
