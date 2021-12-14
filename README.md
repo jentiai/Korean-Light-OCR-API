@@ -12,20 +12,23 @@
 - 텍스트 탐지 모듈 요약
 <center>
 
-| Model | FeatureExtraction | SequenceModel | Prediction | 파라미터 수 | size(MB) | 정확도 |
-| :---: | :---: | :---: |:---: | :---: | :---: | :---: |
-| BASE (H) | MobileNetV3 (576) | BiLSTM (48) | CTC | 1,216,100 | 4.86 | 88.524% |
-| **BEST** (H) | MobileNetV3 (576) | BiLSTM (48) | Attention | 1,246,532 | 4.99 | **90.709%** |
-| BASE (V) | MobileNetV3 (576) | BiLSTM (48) | CTC | 1,216,100 | 4.86 | 87.234% |
-| **BEST** (V) | MobileNetV3 (576) | BiLSTM (48) | Attention | 1,246,532 | 4.99 | **89.821%** |
+| Backbone | Train Dataset | Threshold/ Box threshold | 파라미터 수 | size(MB) | Recall  | Precision | F1score |
+| :---: | :---: |:---: | :---: | :---: | :---: | ----- | ----- |
+| MobileNetV3 | AIHUB | 0.3 / 0.7 | 1,846,312 | 7.39 | 0.71939 | 0.81538   | 0.76438 |
+| MobileNetV3 | AIHUB | 0.4 / 0.7 | 1,846,312 | 7.39 | 0.74774 | 0.79289 | 0.76965 |
+| MobileNetV3 | AIHUB + OpenImage(20%) | 0.3 / 0.7 | 1,846,312 | 7.39 | 0.70267 | 0.81597 | 0.75509 |
+| MobileNetV3 | AIHUB + OpenImage(20%) | 0.45 / 0.7 | 1,846,312 | 7.39 | 0.74987 | 0.77719 | 0.76328 |
+
+텍스트 탐지 모듈은 Differentiable Binarization 모델에서 Backbone으로 MobileNetV3를 사용한 구조입니다. Backbone으로 기존 ResNet-18 과 ResNet-50을 대신하여 MobileNetV3을 사용함으로써 파라미터 수를 대폭 감소 시킬 수 있었습니다. 훈련 데이터로 AIHUB데이터와 영문 데이터의 부족을 해결하기 위해 OpenImage 데이터를 AIHUB훈련 데이터 대비 20% 만큼의 데이터를 추가하여 훈련을 진행하였습니다.
 
 </center>
 
 
 ### (2) Recognizer
 - 텍스트 인식 모듈 그림
+    
     <center><img src ="https://user-images.githubusercontent.com/55676509/145774122-6d2cf8b4-e701-46d3-a725-44b59f2b790f.PNG" width = "100%" height = "10%"></center>
-
+    
 - 텍스트 인식 모듈 요약
 <center>
 
@@ -42,6 +45,15 @@
 
 ## 2. API 사용법
 - 사용법
+
+  ```bash
+  $ curl --request POST http://27.255.77.102:5000/evaluation --form 'file=@[이미지경로]'
+  
+  ex)
+  $ curl --request POST http://27.255.77.102:5000/evaluation --form 'file=@sample_image.jpg'
+  ```
+
+- 
 
 ## 3. 참고 자료
 
