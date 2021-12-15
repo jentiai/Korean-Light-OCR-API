@@ -12,6 +12,7 @@ from recognition.utils import CTCLabelConverter, AttnLabelConverter
 from tools import *
 
 import pathlib
+
 from tqdm import tqdm
 from detection.tools.detector import Detector
 from detection.utils.util import show_img, draw_bbox, save_result, get_file_list
