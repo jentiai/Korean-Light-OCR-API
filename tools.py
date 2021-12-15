@@ -18,14 +18,16 @@ def read_txt(txt_path):
     txt_contents = []
     f = open(txt_path, 'r')
     while True:
-        line = f.readline()
-        if not line: break
-        x1, y1, x2, y2, x3, y3, x4, y4, label = line.split(',')
+        line = f.readline().strip('\n').strip(' ')
+        if not line:
+            break
+        x1, y1, x2, y2, x3, y3, x4, y4 = line.split(',')[:8]
+        label = line.split(',')[8].strip(' ')
+        if line.endswith(','):
+            label += ','
         x1, y1, x2, y2, x3, y3, x4, y4 = map(int, [x1, y1, x2, y2, x3, y3, x4, y4])
-        label = label.split()[0]
         polygon = polygon_from_points([x1, y1, x2, y2, x3, y3, x4, y4])
         txt_contents.append([polygon, label, f"{x1}, {y1}, {x2}, {y2}, {x3}, {y3}, {x4}, {y4}"])
-        
     f.close()
     return txt_contents
 
@@ -66,7 +68,6 @@ def get_intersection_over_union(pD, pG):
     except:
         return 0
 
-
 def make_recognition_pred_gt(detection_output_dir, detection_data_dir, iou_threshold, cropped_data_dir):
     count_dict = dict()
     if not os.path.isdir(cropped_data_dir):
@@ -106,7 +107,6 @@ def make_recognition_pred_gt(detection_output_dir, detection_data_dir, iou_thres
             f.close()
     return count_dict
 
-
 def coordinate_process(points_confidence):
     x1, y1, x2, y2, x3, y3, x4, y4, confidence = points_confidence
     x_points = [int(x1), int(x2), int(x3), int(x4)]
@@ -129,7 +129,6 @@ def coordinate_process_pred(points_confidence):
     label = label.split( )
     return min_x, max_x, min_y, max_y, label
     
-
 def polygon_crop(src_img, points_confidence, args):
     is_vertical = False
     x1, y1, x2, y2, x3, y3, x4, y4, label = points_confidence
@@ -158,12 +157,12 @@ def polygon_crop(src_img, points_confidence, args):
         res = cv2.rotate(res, cv2.ROTATE_90_COUNTERCLOCKWISE)
     return res, [x1, y1, x2, y2, x3, y3, x4, y4], label.split( )[0], is_vertical
 
-
 def crop_polygon_with_persp(detection_data_dir, detection_output_dir, args):
     detection_results = []
     for detection_result in os.listdir(detection_output_dir):
-        if 'txt' in detection_result:
-            detection_results.append([f'{detection_output_dir}{detection_result}', f"{detection_data_dir}{detection_result.split('.txt')[0]}.jpg"])
+        if detection_result.endswith('.txt'):
+            detection_results.append([os.path.join(detection_output_dir, detection_result), os.path.join(detection_data_dir, os.path.splitext(detection_result)[0] + '.jpg')])
+    
     crop_imgs = dict()
     for txt_path, img_path in detection_results:
         if not os.path.isfile(img_path):        
@@ -181,7 +180,9 @@ def crop_polygon_with_persp(detection_data_dir, detection_output_dir, args):
                 line = f.readline().strip('\n').strip(' ')
                 if not line:
                     break
-                res, coordinate, label, is_vertical = polygon_crop(src_img, line.split(','), args)
+                rec = ''.join(line.split(',')[8:]).strip(' ')
+                splited_line = [t.strip(' ') for t in line.split(',')[:8]] + [rec]
+                res, coordinate, label, is_vertical = polygon_crop(src_img, splited_line, args)
                 if is_vertical:
                     crop_imgs_v.append([res, coordinate, label])
                 else:
@@ -190,12 +191,11 @@ def crop_polygon_with_persp(detection_data_dir, detection_output_dir, args):
             crop_imgs[img_name].append([crop_imgs_h, crop_imgs_v])
     return crop_imgs
 
-
 def crop_polygon_with_persp_from_gt(gt_data_dir, args):
     gt_file_names = []
     for gt_file_name in os.listdir(gt_data_dir):
-        if 'txt' in gt_file_name:
-            gt_file_names.append([f'{gt_data_dir}{gt_file_name}', f"{gt_data_dir}{gt_file_name.split('.txt')[0]}.jpg"])
+        if gt_file_name.endswith('.txt'):
+            gt_file_names.append([os.path.join(gt_data_dir, gt_file_name), os.path.join(gt_data_dir, os.path.splitext(gt_file_name)[0]+'.jpg')])
     crop_imgs = dict()
     for txt_path, img_path in gt_file_names:
         if not os.path.isfile(img_path):        
@@ -212,7 +212,9 @@ def crop_polygon_with_persp_from_gt(gt_data_dir, args):
                 line = f.readline().strip('\n').strip(' ')
                 if not line:
                     break
-                res, coordinate, label, is_vertical = polygon_crop(src_img, line.split(','), args)
+                rec = ''.join(line.split(',')[8:]).strip(' ')
+                splited_line = [t.strip(' ') for t in line.split(',')[:8]] + [rec]
+                res, coordinate, label, is_vertical = polygon_crop(src_img, splited_line, args)
                 if label in ['*', '###', 'syeom']:
                     continue
                 crop_imgs[img_name].append([res, coordinate, label])
@@ -250,8 +252,8 @@ def crop_img(detection_data_dir, detection_output_dir, hv_ratio):
 def crop_img_pred(detection_data_dir, recognition_eval_data_dir, hv_ratio):
     detection_results = []
     for detection_result in os.listdir(recognition_eval_data_dir):
-        if 'txt' in detection_result:
-            detection_results.append([f'{recognition_eval_data_dir}{detection_result}', f"{detection_data_dir}{detection_result.split('.txt')[0]}.jpg"])
+        if detection_result.endswith('.txt'):
+            detection_results.append(os.path.join(recognition_eval_data_dir, detection_result), os.path.join(detection_data_dir, os.path.splitext(detection_result)[0] + '.jpg') )
     crop_imgs = dict()
     for txt_path, img_path in detection_results:
         if not os.path.isfile(img_path):        
@@ -380,8 +382,6 @@ def evaluation(pred_list, gt_list, iou_threshold):
             if pred_label == gt_label:
                 correct_num += 1
     return correct_num, gt_num
-
-
 
 def visualization(img_path, predict, output_dir):
     fm.get_fontconfig_fonts()

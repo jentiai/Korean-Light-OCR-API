@@ -1,6 +1,7 @@
 import os
 import requests
 import argparse
+import json
 
 from tools import visualization
 
@@ -12,12 +13,17 @@ def main(args):
 
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir, exist_ok = True)
-
-    for img_name in list(filter(lambda x: x.find('.jpg') != -1 or x.find('.png') != -1, os.listdir(img_dir))):
-        img_path = os.path.join(img_dir, img_name)
-        files = {'file': open(img_path, 'rb').read()}
-        r = requests.post(url, files = files)
-        visualization(img_path,  r.json(), output_dir)
+    
+    with open('./jenti.json', 'w', encoding = 'UTF-8-sig') as json_res:
+        res_dict = {}
+        for img_name in list(filter(lambda x: x.find('.jpg') != -1 or x.find('.png') != -1, os.listdir(img_dir))):
+            img_path = os.path.join(img_dir, img_name)
+            files = {'file': open(img_path, 'rb').read()}
+            r = requests.post(url, files = files)
+            visualization(img_path,  r.json(), output_dir)
+            res_dict[os.path.splitext(img_name)[0]] = r.json()
+        
+        json.dump(res_dict, json_res, ensure_ascii = False, indent = '\t')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
