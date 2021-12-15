@@ -2,8 +2,6 @@ import os
 import re
 import cv2
 import torch
-import random
-import argparse
 
 import numpy as np
 import Polygon as plg
