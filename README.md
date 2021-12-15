@@ -74,7 +74,7 @@ $ python model_result.py --img_dir ./sample/ --output_dir ./output/
         <img src ="Figures/model_result2.jpg" width = "30%" height = "30%">
         <img src ="Figures/model_result3.jpg" width = "30%" height = "30%">
     </p>
-<\center>
+</center>
 
 
 
