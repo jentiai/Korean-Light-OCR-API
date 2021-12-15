@@ -380,3 +380,27 @@ def evaluation(pred_list, gt_list, iou_threshold):
             if pred_label == gt_label:
                 correct_num += 1
     return correct_num, gt_num
+
+
+
+def visualization(img_path, predict, output_dir):
+    fm.get_fontconfig_fonts()
+    font_path = "./NanumFont/NanumGothicBold.ttf"
+    font_prop = fm.FontProperties(fname=font_path)
+    img_name = img_path.split('/')[-1]
+    img = Image.open(img_path)
+    plt.imshow(img)
+    ax = plt.gca()
+    for label, coordinate in predict.items():
+        x = [coordinate[i] for i in range(len(coordinate)) if i % 2 == 0]
+        y = [coordinate[i] for i in range(len(coordinate)) if i % 2 == 1]
+        xy = np.array([ [x_i, y_i] for x_i, y_i in zip(x, y)])
+        poly = patches.Polygon(xy = xy,
+                                fill = False,
+                                linewidth = 2,
+                                edgecolor = 'cyan')
+        ax.add_patch(poly)
+        plt.text(min(x), min(y), label, fontproperties=font_prop)
+    plt.axis('off')
+    plt.savefig(os.path.join(output_dir, img_name), bbox_inches = 'tight', pad_inches = 0)
+    plt.clf()
