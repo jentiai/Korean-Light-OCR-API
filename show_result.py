@@ -5,7 +5,6 @@ import json
 
 from tools import visualization
 
-
 def main(args):
     img_dir = args.img_dir
     output_dir = args.output_dir
