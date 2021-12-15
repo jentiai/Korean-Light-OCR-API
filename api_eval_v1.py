@@ -74,9 +74,7 @@ class ReadPredGT:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--api_res_json", required=True, type=str, help="path to pred_all.json"
-    )
+    parser.add_argument("--api_res_json", required=True, type=str, help="path to pred_all.json")
     parser.add_argument("--txt_gt_dir", required=True, type=str, help="path to gt dir")
     args = parser.parse_args()
 
