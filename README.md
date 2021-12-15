@@ -1,33 +1,67 @@
 # Light-OCR-API
 
-## 1. 경량화 OCR 모델 구조
-저희 경량화 OCR 모델은 Detector (텍스트 탐지 모듈) 과  Recognizer (텍스트 인식 모듈) 로 구분됩니다. 아래는 각 모듈에 대한 요약입니다. 
+이 저장소는 경량화 한글 문자 탐지 및 인식 공개 API를 설명하기 위한 저장소입니다.
+
+## 1. API 사용법
+
+  ```bash
+  $ curl --request POST http://27.255.77.102:5000/evaluation --form 'file=@[이미지경로]'
+  
+  ex)
+  $ curl --request POST http://27.255.77.102:5000/evaluation --form 'file=@sample_image.jpg'
+  ```
+
+
+## 2. Model Result
+
+API를 이용하여 얻은 OCR를 원본 이미지에서 표현하는 방법은 다음과 같습니다. 
+
+  ```bash
+  $ python model_result.py --img_dir [이미지가 담겨있는 directory] --output_dir [OCR 결과를 이용하여 visualize한 이미지들의 output directory]
+
+ex)
+  $ python model_result.py --img_dir ./sample/ --output_dir ./output/
+  ```
+
+<center>
+    <p float="left">
+        <img src ="Figures/model_result1.jpg" width = "30%" height = "30%">
+        <img src ="Figures/model_result2.jpg" width = "30%" height = "30%">
+        <img src ="Figures/model_result3.jpg" width = "30%" height = "30%">
+    </p>
+</center>
+
+## 3. 한글 경량화 OCR 모델 구조
+저희 한글 경량화 OCR 모델은 Detector (텍스트 탐지) 와  Recognizer (텍스트 인식) 으로 구분됩니다. 아래는 각 모듈에 대한 요약입니다. 
+
 ### (1) Detector
 - 텍스트 탐지 모듈 그림
 
-    <center>
+<center>
     <img src= "https://user-images.githubusercontent.com/55676509/145774041-72dc110e-d5e7-464f-93c9-5d927f8c65ba.PNG" width = "80%" height = "80%">
-    </center>
+</center>
 
 - 텍스트 탐지 모듈 요약
 <center>
 
-| Backbone | Train Dataset | Threshold/ Box threshold | 파라미터 수 | size(MB) | Recall  | Precision | F1score |
+| Backbone | Train Dataset | Threshold/ Box threshold | 파라미터 수 | size(MB) | Recall  | Precision | F1 |
 | :---: | :---: |:---: | :---: | :---: | :---: | ----- | ----- |
-| MobileNetV3 | AIHUB | 0.3 / 0.7 | 1,846,312 | 7.39 | 0.71939 | 0.81538   | 0.76438 |
-| MobileNetV3 | AIHUB | 0.4 / 0.7 | 1,846,312 | 7.39 | 0.74774 | 0.79289 | 0.76965 |
-| MobileNetV3 | AIHUB + OpenImage(20%) | 0.3 / 0.7 | 1,846,312 | 7.39 | 0.70267 | 0.81597 | 0.75509 |
-| MobileNetV3 | AIHUB + OpenImage(20%) | 0.45 / 0.7 | 1,846,312 | 7.39 | 0.74987 | 0.77719 | 0.76328 |
-
-텍스트 탐지 모듈은 Differentiable Binarization 모델에서 Backbone으로 MobileNetV3를 사용한 구조입니다. Backbone으로 기존 ResNet-18 과 ResNet-50을 대신하여 MobileNetV3을 사용함으로써 파라미터 수를 대폭 감소 시킬 수 있었습니다. 훈련 데이터로 AIHUB데이터와 영문 데이터의 부족을 해결하기 위해 OpenImage 데이터를 AIHUB훈련 데이터 대비 20% 만큼의 데이터를 추가하여 훈련을 진행하였습니다.
+| MobileNetV3 | AIHUB | 0.3 / 0.7 | 1,846,312 | 7.39 | 0.7233 | 0.8323 | 0.7739 |
+| MobileNetV3 | AIHUB | 0.45 / 0.7 | 1,846,312 | 7.39 | 0.7617 | 0.8045 | **0.7825** |
+| MobileNetV3 | AIHUB | 0.55 / 0.75 | 1,846,312 | 7.39 | 0.7553 | 0.8106 | 0.7820 |
 
 </center>
+
+* 텍스트 탐지 모듈은 Differentiable Binarization 모델의 Backbone을 MobileNetV3로 교체한 모델입니다.
+* 기존 ResNet-18 과 ResNet-50을 MobileNetV3으로 대체함으로써 파라미터 수와 모델 size를 대폭 감소 시킬 수 있었습니다.
 
 
 ### (2) Recognizer
 - 텍스트 인식 모듈 그림
     
-    <center><img src ="https://user-images.githubusercontent.com/55676509/145774122-6d2cf8b4-e701-46d3-a725-44b59f2b790f.PNG" width = "100%" height = "10%"></center>
+<center>
+    <img src ="https://user-images.githubusercontent.com/55676509/145774122-6d2cf8b4-e701-46d3-a725-44b59f2b790f.PNG" width = "100%" height = "10%">
+</center>
     
 - 텍스트 인식 모듈 요약
 <center>
@@ -41,51 +75,45 @@
 
 </center>
 
-텍스트 인식 모듈은 TPS를 사용하지 않고, ``MobileNetV3 - BiLSTM - {Attention, CTC}`` 를 이용하는 구조입니다. MobileNetV3와 BiLSTM의 경우 각각 차원을 576, 48로 사용하여 기존보다 파라미터 수를 대폭 감소시킬 수 있었습니다. 모델의 입력은 가로와 세로의 길이가 각각 192, 48인 RGB 이미지입니다. 한글의 경우 가로 글씨 (H) 와 세로 글씨 (V) 를 각각 인식하기 위해 구조가 동일한 두 개의 모델을 각각의 데이터에 대해 학습하였습니다. 마지막 추론 모듈을 CTC에서 Attention으로 교환할 시에 파라미터 수는 약 3만개 증가하고, size는 0.13 (MB) 증가한 반면 정확도를 1-2% 개선시킬 수 있기에 전체 OCR 과정의 기본값을 Attention을 이용한 추론 모듈로 하였습니다. ``TPS - ResNet50 - BiLSTM - Attention``을 이용한 모델 대비, 전체 모델의 size는 약 38배 감소하였으며, 정확도는 2-3% 정도 떨어진 성능을 기록하고 있습니다.
-
-## 2. API 사용법
-- 사용법
-
-  ```bash
-  $ curl --request POST http://27.255.77.102:5000/evaluation --form 'file=@[이미지경로]'
-  
-  ex)
-  $ curl --request POST http://27.255.77.102:5000/evaluation --form 'file=@sample_image.jpg'
-  ```
-
-
-
-## 3. Model Result
-
-> API의 OCR 결과를 이용하여 이미지에 box와 label을 그려주는 코드
-
-```bash
-$ python model_result.py --img_dir [이미지가 담겨있는 directory] --output_dir [OCR 결과를 이용하여 visualize한 이미지들의 output directory]
-
-ex)
-$ python model_result.py --img_dir ./sample/ --output_dir ./output/
-```
-
-
-
-<center>
-    <p float="left">
-        <img src ="Figures/model_result1.jpg" width = "30%" height = "30%">
-        <img src ="Figures/model_result2.jpg" width = "30%" height = "30%">
-        <img src ="Figures/model_result3.jpg" width = "30%" height = "30%">
-    </p>
-</center>
-
-
-
-
-
-
+* 텍스트 인식 모듈은 TPS를 사용하지 않았습니다.
+* MobileNetV3와 BiLSTM의 경우 각각 차원을 576, 48로 사용하여 기존보다 파라미터 수가 대폭 감소되었습니다.
+* 모델의 입력은 가로와 세로의 길이가 각각 192, 48인 RGB 이미지입니다.
+* 사용한 음소는 한글, 영어와 특수 문자 일부를 사용한 약 1200개를 사용했습니다.
+* 한글의 경우 가로 글씨 (H) 와 세로 글씨 (V) 각각의 인식률을 높이기 위해 구조가 동일한 두 개의 모델을 따로 훈련하였습니다.
+* CTC 대신 Attention(기본값)으로 추론 시 모델의 size는 0.13 (MB) 증가한 반면, 인식률이 약 2% 증가합니다.
+* ``TPS-ResNet50-BiLSTM-Attention``을 이용한 모델 대비, 텍스트 인식률을 거의 유지하면서, 모델의 사이즈는 약 38배 감소되었습니다.
 
 ## 4. 참고 자료
 
-[1] PP-OCR
+[1] @inproceedings{baek2019character,
+  title={Character region awareness for text detection},
+  author={Baek, Youngmin and Lee, Bado and Han, Dongyoon and Yun, Sangdoo and Lee, Hwalsuk},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={9365--9374},
+  year={2019}
+}
 
-[2] Differentiable Binarization
+[2] @inproceedings{liao2020real,
+  title={Real-time scene text detection with differentiable binarization},
+  author={Liao, Minghui and Wan, Zhaoyi and Yao, Cong and Chen, Kai and Bai, Xiang},
+  booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume={34},
+  number={07},
+  pages={11474--11481},
+  year={2020}
+}
 
-[3] Text detection benchmark
+[3] @inproceedings{baek2019wrong,
+  title={What is wrong with scene text recognition model comparisons? dataset and model analysis},
+  author={Baek, Jeonghun and Kim, Geewook and Lee, Junyeop and Park, Sungrae and Han, Dongyoon and Yun, Sangdoo and Oh, Seong Joon and Lee, Hwalsuk},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages={4715--4723},
+  year={2019}
+}
+
+[4] @article{du2020pp,
+  title={PP-OCR: A practical ultra lightweight OCR system},
+  author={Du, Yuning and Li, Chenxia and Guo, Ruoyu and Yin, Xiaoting and Liu, Weiwei and Zhou, Jun and Bai, Yifan and Yu, Zilin and Yang, Yehua and Dang, Qingqing and others},
+  journal={arXiv preprint arXiv:2009.09941},
+  year={2020}
+}
