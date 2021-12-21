@@ -103,7 +103,16 @@ ex) $ python show_result.py --img_dir ./sample/ --output_dir ./output/
 * CTC 추론 모듈 대신 Attention(default) 추론 모듈 사용시, 모델의 size는 0.13 (MB) 증가한 반면, 인식률이 약 2% 증가합니다.
 * ``TPS-ResNet50(512)-BiLSTM(256)-Attention``을 이용한 모델 [3]과 비교했을 때, 텍스트 인식률을 유지하면서 모델의 사이즈는 약 38배 감소하였습니다.
 
-## 4. 참고 자료
+## 4. 지원
+
+본 연구개발은 2021년도 정부(과학기술정보통신부)의 재원으로 정보통신기획평가원의 지원을 받아 수행한 연구 성과물의 일부입니다. 해당 연구과제에 대한 정보는 아래와 같습니다.
+
+* 과제번호: 2021-0-00023
+* 연구사업명: 인공지능산업원천기술개발
+* 연구과제명: 복합재난 상황에서의 문제해결을 위한 경량화 한글 탐지/인식 기술 개발
+* 주관연구기관: [주식회사 젠티](http://jenti.ai/)
+
+## 5. 참고 자료
 
 [1] Character Region Awareness for Text Detection.
    Youngmin Baek, Bado Lee, Dongyoon Han, Sangdoo Yun, and Hwalsuk Lee.
