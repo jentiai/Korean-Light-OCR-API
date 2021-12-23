@@ -126,3 +126,6 @@ ex) $ python show_result.py --img_dir ./sample/ --output_dir ./output/
 
 [4] PP-OCR: A practical Ultra Lightweight OCR System.
   Yuning Du, Chenxia Li, Ruoyu Guo, Xiaoting Yin, Weiwei Liu, Jun Zhou, Yifan Bai, Zilin Yu, Yehua Yang, Qingqing Dang, et. al. arXiv preprint arXiv:2009.09941. 2020.
+ 
+[5] 네이버 나눔 글꼴, 
+https://hangeul.naver.com/font
